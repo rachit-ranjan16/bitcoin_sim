@@ -21,7 +21,14 @@ defmodule Block do
 
     pw = ProofOfWork.new_pow(b, %ProofOfWork{})
     nonce_hash = ProofOfWork.run(pw, b.nonce)
-    %{b | nonce: elem(nonce_hash, 0), hash: elem(nonce_hash, 1) |> Base.encode16()
-    |> String.downcase() }
+
+    %{
+      b
+      | nonce: elem(nonce_hash, 0),
+        hash:
+          elem(nonce_hash, 1)
+          |> Base.encode16()
+          |> String.downcase()
+    }
   end
 end

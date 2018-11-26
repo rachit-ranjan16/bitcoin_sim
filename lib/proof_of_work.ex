@@ -22,15 +22,16 @@ defmodule ProofOfWork do
 
   # when nonce < @upper_limit 
   def run(%ProofOfWork{} = pw, nonce) do
-    IO.puts("Mining Block containing Data=#{pw.block.data}")
+    # prevBlockHash=#{pw.block.prevBlockHash}")
+    IO.puts("Mining Block containing Data=#{pw.block.data} Nonce=#{nonce}")
     data = ProofOfWork.prepare_data(pw, nonce)
     hash = :crypto.hash(:sha256, data)
 
-    IO.puts(
-      "hash=#{Kernel.inspect(hash)} target=#{Kernel.inspect(<<pw.target::size(256)>>)} nonce=#{
-        nonce
-      }"
-    )
+    # IO.puts(
+    #   "hash=#{Kernel.inspect(hash)} target=#{Kernel.inspect(<<pw.target::size(256)>>)} nonce=#{
+    #     nonce
+    #   }"
+    # )
 
     if hash < <<pw.target::size(256)>> do
       {nonce, hash}
