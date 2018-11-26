@@ -1,19 +1,12 @@
 defmodule BlockChain do
-  # TODO Remove this 
   defstruct tail: nil
 
-  # TODO Modify these 
   def add_block(%BlockChain{tail: tail} = bc, data) do
     b = Block.create_block(data, elem(Enum.at(:ets.lookup(:bc_cache, tail), 0), 1).hash)
     :ets.insert(:bc_cache, {b.hash, b})
     :ets.insert(:bc_cache, {:tail, b.hash})
     %{bc | tail: b.hash}
   end
-
-  # # TODO Modify these 
-  # def add_block(%BlockChain{blocks: blocks} = bc, data) when blocks == nil do
-  #   %{bc | blocks: [Block.create_block(data, "Genesis")]}
-  # end
 
   def print_blocks(%BlockChain{tail: tail} = bc, continue)
       when continue === true do
@@ -47,7 +40,6 @@ defmodule BlockChain do
   def main(args) do
     :ets.new(:bc_cache, [:set, :public, :named_table])
     bc = BlockChain.new_block_chain(%BlockChain{})
-    # bc = BlockChain.add_block(%BlockChain{}, "Genesis")
     bc = BlockChain.add_block(bc, "Rachit")
     bc = BlockChain.add_block(bc, "DoodlyWoodle")
     bc = BlockChain.add_block(bc, "Aditya")

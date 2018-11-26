@@ -20,9 +20,7 @@ defmodule ProofOfWork do
   #     {nonce, hash} 
   # end 
 
-  # when nonce < @upper_limit 
   def run(%ProofOfWork{} = pw, nonce) do
-    # prevBlockHash=#{pw.block.prevBlockHash}")
     IO.puts("Mining Block containing Data=#{pw.block.data} Nonce=#{nonce}")
     data = ProofOfWork.prepare_data(pw, nonce)
     hash = :crypto.hash(:sha256, data)
