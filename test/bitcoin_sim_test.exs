@@ -15,24 +15,24 @@ defmodule BitcoinSimTest do
 
     # Assert data  and links in block chain 
     assert elem(Enum.at(:ets.lookup(:bc_cache, bc.tail), 0), 1).data === "MoodyWoody"
-    
+
     prevHash = elem(Enum.at(:ets.lookup(:bc_cache, bc.tail), 0), 1).prevBlockHash
-    cur =  elem(Enum.at(:ets.lookup(:bc_cache, prevHash), 0), 1)
+    cur = elem(Enum.at(:ets.lookup(:bc_cache, prevHash), 0), 1)
     assert cur.data === "Aditya"
     assert cur.hash === prevHash
 
     prevHash = cur.prevBlockHash
-    cur =  elem(Enum.at(:ets.lookup(:bc_cache, prevHash), 0), 1)
+    cur = elem(Enum.at(:ets.lookup(:bc_cache, prevHash), 0), 1)
     assert cur.data === "DoodlyWoodle"
     assert cur.hash === prevHash
 
     prevHash = cur.prevBlockHash
-    cur =  elem(Enum.at(:ets.lookup(:bc_cache, prevHash), 0), 1)
+    cur = elem(Enum.at(:ets.lookup(:bc_cache, prevHash), 0), 1)
     assert cur.data === "Rachit"
     assert cur.hash === prevHash
 
     prevHash = cur.prevBlockHash
-    cur =  elem(Enum.at(:ets.lookup(:bc_cache, prevHash), 0), 1)
+    cur = elem(Enum.at(:ets.lookup(:bc_cache, prevHash), 0), 1)
     assert cur.data === "Genesis"
     assert cur.hash === prevHash
     assert cur.prevBlockHash === "None"
