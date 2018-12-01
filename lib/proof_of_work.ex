@@ -47,11 +47,11 @@ defmodule ProofOfWork do
   # end 
 
   def run(%ProofOfWork{} = pw, nonce) do
-    IO.puts(
-      "Mining Block containing Transactions=#{Kernel.inspect(pw.block.transactions)} Nonce=#{
-        nonce
-      }"
-    )
+    # IO.puts(
+    #   "Mining Block containing Transactions=#{Kernel.inspect(pw.block.transactions)} Nonce=#{
+    #     nonce
+    #   }"
+    # )
 
     data = ProofOfWork.prepare_data(pw, nonce)
     hash = :crypto.hash(:sha256, data)

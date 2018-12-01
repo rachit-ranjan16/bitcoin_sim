@@ -14,4 +14,8 @@ defmodule Transaction do
     # %{t | ID: :crypto.hash(:sha256, Enum.at(t.in_tx,0).tx_id <> ";"<>  Enum.at(t.in_tx,0).v_out <> ";" <> Enum.at(t.in_tx,0).script_sig <> ";" <>  Enum.at(t.out_tx,0).value <> ";" <> Enum.at(t.out_tx,0).script_pub_key )}
     %{t | ID: :crypto.hash(:sha256, :crypto.strong_rand_bytes(5))}
   end
+
+  def is_coinbase(%Transaction{ID: _, in_tx: in_tx, out_tx: _} = tx) do
+    length(in_tx) === 1 and Enum.at(in_tx, 0).tx_id === "none" and Enum.at(in_tx, 0).v_out === -1
+  end
 end
