@@ -435,7 +435,6 @@ defmodule BlockChain do
     bc = send(bc, rachit, aditya, 3)
     IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
     IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
-
     # IO.puts(
     #   "\n\nAfterSendTailHash=#{bc.tail}\nCacheTail=#{
     #     Kernel.inspect(:ets.lookup(:bc_cache, :tail))
