@@ -1,40 +1,54 @@
 defmodule BitcoinSimTest do
   use ExUnit.Case
-  doctest BitcoinSim
+  doctest BlockChain
 
-  test "create and test blockchain" do
-    # Initialize Blockchain with Genesis 
-    # Use Proof of work to add block 
-    # Assert whether the created blockchain in valid 
+  # IO.puts("Rachit=#{rachit |> Base.encode16()} Aditya=#{aditya |> Base.encode16()}")
+
+  setup do
     :ets.new(:bc_cache, [:set, :public, :named_table])
-    bc = BlockChain.new_block_chain(%BlockChain{})
-    bc = BlockChain.add_block(bc, "Rachit")
-    bc = BlockChain.add_block(bc, "DoodlyWoodle")
-    bc = BlockChain.add_block(bc, "Aditya")
-    bc = BlockChain.add_block(bc, "MoodyWoody")
+    bc = BlockChain.new_block_chain(%BlockChain{}, "Ranjan")
+    wallets = %{}
+    wallets = Map.put(wallets, "Rachit", Wallet.new_wallet(%Wallet{}))
+    wallets = Map.put(wallets, "Aditya", Wallet.new_wallet(%Wallet{}))
+    rachit = Map.get(Map.get(wallets, "Rachit"), :public_key)
+    aditya = Map.get(Map.get(wallets, "Aditya"), :public_key)
+    {:ok, %{:rachit => rachit, :aditya => aditya, :bc => bc}}
+  end
 
-    # Assert data  and links in block chain 
-    assert elem(Enum.at(:ets.lookup(:bc_cache, bc.tail), 0), 1).data === "MoodyWoody"
+  test "Aditya buy 7 coins", state do
+    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:aditya], state[:aditya], 7))
+    assert BlockChain.get_balance(state[:bc], state[:aditya]) === 7
+  end
 
-    prevHash = elem(Enum.at(:ets.lookup(:bc_cache, bc.tail), 0), 1).prevBlockHash
-    cur = elem(Enum.at(:ets.lookup(:bc_cache, prevHash), 0), 1)
-    assert cur.data === "Aditya"
-    assert cur.hash === prevHash
+  test "Rachit buy 10 coins", state do
+    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:rachit], 10))
+    assert BlockChain.get_balance(state[:bc], state[:rachit]) === 10
+  end
 
-    prevHash = cur.prevBlockHash
-    cur = elem(Enum.at(:ets.lookup(:bc_cache, prevHash), 0), 1)
-    assert cur.data === "DoodlyWoodle"
-    assert cur.hash === prevHash
+  test "Rachit sends Aditya 6 coins", state do
+    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:rachit], 10))
+    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:aditya], state[:aditya], 7))
+    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:aditya], 6))
+    assert BlockChain.get_balance(state[:bc], state[:rachit]) === 4
+    assert BlockChain.get_balance(state[:bc], state[:aditya]) === 13
+  end
 
-    prevHash = cur.prevBlockHash
-    cur = elem(Enum.at(:ets.lookup(:bc_cache, prevHash), 0), 1)
-    assert cur.data === "Rachit"
-    assert cur.hash === prevHash
+  test "Aditya sends Rachit 2 coins", state do
+    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:rachit], 10))
+    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:aditya], state[:aditya], 7))
+    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:aditya], 6))
+    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:aditya], state[:rachit], 2))
+    assert BlockChain.get_balance(state[:bc], state[:rachit]) === 6
+    assert BlockChain.get_balance(state[:bc], state[:aditya]) === 11
+  end
 
-    prevHash = cur.prevBlockHash
-    cur = elem(Enum.at(:ets.lookup(:bc_cache, prevHash), 0), 1)
-    assert cur.data === "Genesis"
-    assert cur.hash === prevHash
-    assert cur.prevBlockHash === "None"
+  test "Rachit sends Aditya 3 coins", state do
+    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:rachit], 10))
+    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:aditya], state[:aditya], 7))
+    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:aditya], 6))
+    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:aditya], state[:rachit], 2))
+    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:aditya], 3))
+    assert BlockChain.get_balance(state[:bc], state[:rachit]) === 3
+    assert BlockChain.get_balance(state[:bc], state[:aditya]) === 14
   end
 end
