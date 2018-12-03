@@ -1,21 +1,54 @@
-# BitcoinSim
+# BitcoinSim 
 
-**TODO: Add description**
+## Project 4.1
 
-## Installation
+### Description 
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `bitcoin_sim` to your list of dependencies in `mix.exs`:
+Blockchain, Mining Modules for Bitcoin Simulator 
 
-```elixir
-def deps do
-  [
-    {:bitcoin_sim, "~> 0.1.0"}
-  ]
-end
-```
+## Group Members 
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/bitcoin_sim](https://hexdocs.pm/bitcoin_sim).
+- Rachit Ranjan 
+- Aditya Vashist 
+
+## Prerequisites 
+
+  - Elixir 1.7+ Installation  
+
+## Functioning Features 
+
+- Blockchain creation
+  - All blocks are stored in ets cache
+    - Key: Block Hash, Value: Block
+    - Key: `:tail`, Value: Block Hash of last block  
+-  Transactions
+-  Wallets
+-  Mining
+
+## Execution Instructions 
+
+  - Main Function
+    - Straight up execution covering the following flows  
+      - Initialization of Blockchain with Coinbase transaction in ets cache 
+      - Creation of Wallets for two participants with initial Bitcoin
+      - Transactions between the two participants
+        - Addition and Mining of Blocks 
+      - Get Balance after each transaction
+        - Mining for a User  
+    - Execute the following
+      - `mix compile`
+      - `mix run`
+      - `mix escript.build`
+      - `./bitcoin_sim`
+  - Execute `mix test` to execute the following tests 
+  - Unit Tests
+    - Computation of Hashes/Proof of Work
+      - ``
+  - Functional Tests
+    - 'Aditya buys 7 coins'
+    - 'Rachit buys 10 coins'
+    - 'Rachit sends Aditya 6 coins' 
+    - 'Aditya sends Rachit 2 coins'
+    - 'Rachit sends Aditya 3 coins'
+
 

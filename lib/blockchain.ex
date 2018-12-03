@@ -6,6 +6,7 @@ defmodule BlockChain do
     b = Block.create_block(transactions, elem(Enum.at(:ets.lookup(:bc_cache, :tail), 0), 1))
     :ets.insert(:bc_cache, {b.hash, b})
     :ets.insert(:bc_cache, {:tail, b.hash})
+    IO.puts("Added new block with hash=#{b.hash} to Blockchain")
     # bc.tail = b.hash
     %{bc | tail: b.hash}
   end
@@ -28,15 +29,14 @@ defmodule BlockChain do
 
   def new_block_chain(%BlockChain{tail: _} = bc, address) do
     if :ets.lookup(:bc_cache, :tail) === [] do
-      # TODO Define the coinbase transaction 
+      IO.puts("Initializing Blockchain with Coinbase Transaction")
+
       genesis =
         Block.create_block(
           [Transaction.new_coinbase_tx(%Transaction{}, address, @genesisCoinbaseData)],
           "Genesis"
         )
 
-      # TODO Remove Log 
-      # IO.puts("RACHITLOG Going in Cache=#{Kernel.inspect(genesis.hash)}")
       :ets.insert(:bc_cache, {genesis.hash, genesis})
       :ets.insert(:bc_cache, {:tail, genesis.hash})
       tail = genesis.hash
@@ -55,50 +55,14 @@ defmodule BlockChain do
         continue
       )
       when continue === false do
-    # when bci.block.prevBlockHash === "Genesis" do
-    # IO.puts("End of Blockchain unspentTXs=#{Kernel.inspect(unspentTXs)}")
     unspentTXs
   end
 
   def unspent_trans_helper(bci, st, unspentTXs, address, continue)
-      # when bci.block.prevBlockHash != "Genesis" do
       when continue === true do
-    # bci.block.prevBlockHash |> Kernel.inspect() |> IO.puts()
-    # IO.puts("Unspent Transaction Helper")
-
     st_unspentTXs =
       transaction_walker(bci, st, 0, length(bci.block.transactions), unspentTXs, address)
 
-    # utx = 
-    # for i <- 0..(length(bci.block.transactions) - 1) do
-    #   tx = Enum.at(bci.block.transactions, i)
-    # IO.puts("Inside i loop limit=#{length(bci.block.transactions)}")
-    # unspentTXs = out_transaction_walker(tx, st, 0, length(tx.out_tx), unspentTXs, address)
-    # IO.puts("Unspent Tx after recursion=#{Kernel.inspect(elem(st_unspentTXs, 1))}")
-    # for j <- 0..(length(tx.out_tx) - 1) do
-    #   IO.puts("Referenced Outputs=#{check_referenced_outputs(tx, st, i)}")
-
-    #   if check_referenced_outputs(tx, st, i) === true do
-    #     out_tx_j = Enum.at(tx.out_tx, j)
-    #     # IO.puts("OutTx=#{Map.get(tx.out_tx, :script_pub_key)}") 
-    #     if OutputTransaction.can_be_unlocked_with(out_tx_j, address) do
-    #       unspentTXs = unspentTXs ++ [tx]
-    #       IO.puts("Unspent Tx in loop=#{Kernel.inspect(unspentTXs)}")
-    #       #  IO.puts "Unspect Transaction Helper"
-    #     end
-    #   end
-    # end
-
-    #   if Transaction.is_coinbase(tx) === false do
-    #     Enum.each(tx.in_tx, fn intx ->
-    #       if InputTransaction.can_unlock_output_with(intx, address) do
-    #         Map.put(st, intx.tx_id, Map.get(st, intx.tx_id) ++ [intx.v_out])
-    #       end
-    #     end)
-    #   end
-    # end
-
-    # IO.puts()
     bci_next = BlockChainIterator.next(bci)
     # IO.puts("Unspent Tx outside loop=#{Kernel.inspect(elem(st_unspentTXs, 1))}")
 
@@ -160,26 +124,16 @@ defmodule BlockChain do
             else
               Map.put(st, intx.tx_id, [intx.v_out])
             end
-
-          # Map.put(st, intx.tx_id, Map.get(st, intx.tx_id) ++ [intx.v_out])
-          # IO.puts("\n\n\nInside st=#{Kernel.inspect(st)}\n\n\n")
         end
       end)
     end
 
-    # IO.puts("\n\n\nOutside st=#{Kernel.inspect(st)}\n\n\n")
     transaction_walker(bci, st, i + 1, limit, unspentTXs, address)
   end
 
   def check_referenced_outputs(tx, st, i) do
-    # IO.puts("Cache Lookup=#{Kernel.inspect(Map.get(st, Map.get(tx, :ID)))}")
-
     if Map.get(st, Map.get(tx, :ID)) != nil do
-      # IO.puts("k loop limit=#{length(Map.get(st, Map.get(tx, :ID)))}")
-
       for k <- 0..(length(Map.get(st, Map.get(tx, :ID))) - 1) do
-        # IO.puts("Inside k loop")
-
         if Enum.at(Map.get(st, Map.get(tx, :ID)), k) === i do
           false
         end
@@ -202,7 +156,6 @@ defmodule BlockChain do
   end
 
   def find_utxo_helper(out_tx, utxos, address, i, limit) when i === limit do
-    # IO.puts("UTXO output helper=#{Kernel.inspect(utxos)}")
     utxos
   end
 
@@ -222,15 +175,6 @@ defmodule BlockChain do
   def find_utxo(bc, address) do
     list_txs = find_unspent_transactions(bc, address)
     utxo = unspent_transaction_walker(list_txs, [], 0, length(list_txs), bc, address)
-    # Enum.each(find_unspent_transactions(bc, address), fn tx ->
-    #   IO.puts("TX Length=#{length(Map.get(tx, :out_tx))}")
-
-    #   utxo =
-    #     utxo ++
-    #       find_utxo_helper(Map.get(tx, :out_tx), [], address, 0, length(Map.get(tx, :out_tx)))
-    # end)
-
-    # IO.puts("UTXO output outside Enum.each=#{Kernel.inspect(utxo)}")
     utxo
   end
 
@@ -318,14 +262,9 @@ defmodule BlockChain do
   end
 
   def get_balance(bc, address) do
-    # IO.puts("UTXO output=#{Kernel.inspect(BlockChain.find_utxo(bc, address))}")
     utxos = BlockChain.find_utxo(bc, address)
     # IO.puts("\n\n\nUTXOs=#{Kernel.inspect(utxos)}\n\n\n")
     get_balance_helper(utxos, 0, length(utxos), 0, address)
-    # Enum.each(BlockChain.find_utxo(bc, address), fn out ->
-    #   balance = balance + out.value
-    #   #IO.puts("Balance=#{balance}")    end)
-    # balance
   end
 
   def input_appender(outs, i, limit, txID, from) when i === limit do
@@ -351,15 +290,13 @@ defmodule BlockChain do
     # IO.puts("acc_unspent=#{Kernel.inspect(accumulated_unspentOuts)}")
 
     if elem(accumulated_unspentOuts, 0) < amount do
-      IO.puts("Not enough funds")
+      # IO.puts("Not enough funds")
     end
 
     keys = Map.keys(elem(accumulated_unspentOuts, 1))
 
     inputs =
       valid_outputs_walker(elem(accumulated_unspentOuts, 1), 0, length(keys), keys, from, [])
-
-    # IO.puts("RACHITLOG #{Kernel.inspect(accumulated_unspentOuts)}, #{amount}")
 
     outputs =
       [
@@ -395,13 +332,6 @@ defmodule BlockChain do
   def send(bc, from, to, amount) do
     bc = BlockChain.add_block(bc, [new_utxo_transaction(bc, from, to, amount)])
 
-    # IO.puts(
-    #   "\n\nAfterAddBlockTailHash=#{bc.tail}\nCacheTail=#{
-    #     Kernel.inspect(:ets.lookup(:bc_cache, :tail))
-    #   }"
-    # )
-
-    # BlockChain.print_blocks(bc, true)
     IO.puts("Success")
     bc
   end
@@ -415,15 +345,10 @@ defmodule BlockChain do
     rachit = Map.get(Map.get(wallets, "Rachit"), :public_key)
     aditya = Map.get(Map.get(wallets, "Aditya"), :public_key)
     IO.puts("Rachit=#{rachit |> Base.encode16()} Aditya=#{aditya |> Base.encode16()}")
-    # IO.puts(
-    #   "\n\nBeforeSendTailHash=#{bc.tail}\nCacheTail=#{
-    #     Kernel.inspect(:ets.lookup(:bc_cache, :tail))
-    #   }"
-    # )
     bc = send(bc, aditya, aditya, 7)
     bc = send(bc, rachit, rachit, 10)
-    IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
-    IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
+    # IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
+    # IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
     # bc = send(bc, rachit, rachit, 10)
     # IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
     bc = send(bc, rachit, aditya, 6)
@@ -435,32 +360,5 @@ defmodule BlockChain do
     bc = send(bc, rachit, aditya, 3)
     IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
     IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
-    # IO.puts(
-    #   "\n\nAfterSendTailHash=#{bc.tail}\nCacheTail=#{
-    #     Kernel.inspect(:ets.lookup(:bc_cache, :tail))
-    #   }"
-    # )
-
-    # bc =
-    #   BlockChain.add_block(bc, [
-    #     Transaction.new_coinbase_tx(%Transaction{}, "Rachit", @genesisCoinbaseData)
-    #   ])
-
-    # bc =
-    #   BlockChain.add_block(bc, [
-    #     Transaction.new_coinbase_tx(%Transaction{}, "Ranjan", @genesisCoinbaseData)
-    #   ])
-
-    # bc =
-    #   BlockChain.add_block(bc, [
-    #     Transaction.new_coinbase_tx(%Transaction{}, "Aditya", @genesisCoinbaseData)
-    #   ])
-
-    # bc =
-    #   BlockChain.add_block(bc, [
-    #     Transaction.new_coinbase_tx(%Transaction{}, "Vashist", @genesisCoinbaseData)
-    #   ])
-
-    # BlockChain.print_blocks(bc, true)
   end
 end
