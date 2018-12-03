@@ -320,7 +320,7 @@ defmodule BlockChain do
   def get_balance(bc, address) do
     # IO.puts("UTXO output=#{Kernel.inspect(BlockChain.find_utxo(bc, address))}")
     utxos = BlockChain.find_utxo(bc, address)
-    IO.puts("\n\n\nUTXOs=#{Kernel.inspect(utxos)}\n\n\n")
+    # IO.puts("\n\n\nUTXOs=#{Kernel.inspect(utxos)}\n\n\n")
     get_balance_helper(utxos, 0, length(utxos), 0, address)
     # Enum.each(BlockChain.find_utxo(bc, address), fn out ->
     #   balance = balance + out.value
@@ -333,7 +333,7 @@ defmodule BlockChain do
   end
 
   def input_appender(outs, i, limit, txID, from) when i < limit do
-    [%InputTransaction{tx_id: txID, v_out: Enum.at(outs, i), script_sig: from}] ++
+    [%InputTransaction{tx_id: txID, v_out: Enum.at(outs, i), public_key: from}] ++
       input_appender(outs, i + 1, limit, txID, from)
   end
 
@@ -362,14 +362,21 @@ defmodule BlockChain do
     # IO.puts("RACHITLOG #{Kernel.inspect(accumulated_unspentOuts)}, #{amount}")
 
     outputs =
-      [%OutputTransaction{value: amount, script_pub_key: to}] ++
+      [
+        %OutputTransaction{
+          value: amount,
+          # public_key_hash: :crypto.hash(:ripemd160, :crypto.hash(:sha256, to))
+          public_key: to
+        }
+      ] ++
         if elem(accumulated_unspentOuts, 0) > amount do
-          IO.puts("Trying to create output transaction")
+          # IO.puts("Trying to create output transaction")
 
           [
             %OutputTransaction{
               value: -1 * amount,
-              script_pub_key: from
+              # public_key_hash: :crypto.hash(:ripemd160, :crypto.hash(:sha256, from))
+              public_key: from
             }
           ]
         else
@@ -402,23 +409,33 @@ defmodule BlockChain do
   def main(args) do
     :ets.new(:bc_cache, [:set, :public, :named_table])
     bc = BlockChain.new_block_chain(%BlockChain{}, "Ranjan")
-
+    wallets = %{}
+    wallets = Map.put(wallets, "Rachit", Wallet.new_wallet(%Wallet{}))
+    wallets = Map.put(wallets, "Aditya", Wallet.new_wallet(%Wallet{}))
+    rachit = Map.get(Map.get(wallets, "Rachit"), :public_key)
+    aditya = Map.get(Map.get(wallets, "Aditya"), :public_key)
+    IO.puts("Rachit=#{rachit |> Base.encode16()} Aditya=#{aditya |> Base.encode16()}")
     # IO.puts(
     #   "\n\nBeforeSendTailHash=#{bc.tail}\nCacheTail=#{
     #     Kernel.inspect(:ets.lookup(:bc_cache, :tail))
     #   }"
     # )
-    bc = send(bc, "Rachit", "Rachit", 10)
-    IO.puts("Rachit's Balance=#{get_balance(bc, "Rachit")}")
-    bc = send(bc, "Rachit", "Aditya", 6)
-    IO.puts("Rachit's Balance=#{get_balance(bc, "Rachit")}")
-    IO.puts("Aditya's Balance=#{get_balance(bc, "Aditya")}")
-    bc = send(bc, "Aditya", "Rachit", 2)
-    IO.puts("Rachit's Balance=#{get_balance(bc, "Rachit")}")
-    IO.puts("Aditya's Balance=#{get_balance(bc, "Aditya")}")
-    bc = send(bc, "Rachit", "Aditya", 2)
-    IO.puts("Rachit's Balance=#{get_balance(bc, "Rachit")}")
-    IO.puts("Aditya's Balance=#{get_balance(bc, "Aditya")}")
+    bc = send(bc, aditya, aditya, 7)
+    bc = send(bc, rachit, rachit, 10)
+    IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
+    IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
+    # bc = send(bc, rachit, rachit, 10)
+    # IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
+    bc = send(bc, rachit, aditya, 6)
+    IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
+    IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
+    bc = send(bc, aditya, rachit, 2)
+    IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
+    IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
+    bc = send(bc, rachit, aditya, 3)
+    IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
+    IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
+
     # IO.puts(
     #   "\n\nAfterSendTailHash=#{bc.tail}\nCacheTail=#{
     #     Kernel.inspect(:ets.lookup(:bc_cache, :tail))
