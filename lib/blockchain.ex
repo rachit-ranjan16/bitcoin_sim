@@ -320,7 +320,7 @@ defmodule BlockChain do
   def get_balance(bc, address) do
     # IO.puts("UTXO output=#{Kernel.inspect(BlockChain.find_utxo(bc, address))}")
     utxos = BlockChain.find_utxo(bc, address)
-    # #IO.puts("\n\n\nUTXOs=#{Kernel.inspect(utxos)}\n\n\n")
+    IO.puts("\n\n\nUTXOs=#{Kernel.inspect(utxos)}\n\n\n")
     get_balance_helper(utxos, 0, length(utxos), 0, address)
     # Enum.each(BlockChain.find_utxo(bc, address), fn out ->
     #   balance = balance + out.value
@@ -348,7 +348,7 @@ defmodule BlockChain do
 
   def new_utxo_transaction(bc, from, to, amount) do
     accumulated_unspentOuts = BlockChain.find_spendable_output(bc, from, amount)
-    IO.puts("acc_unspent=#{Kernel.inspect(accumulated_unspentOuts)}")
+    # IO.puts("acc_unspent=#{Kernel.inspect(accumulated_unspentOuts)}")
 
     if elem(accumulated_unspentOuts, 0) < amount do
       IO.puts("Not enough funds")
@@ -368,7 +368,7 @@ defmodule BlockChain do
 
           [
             %OutputTransaction{
-              value: elem(accumulated_unspentOuts, 0) - amount,
+              value: -1 * amount,
               script_pub_key: from
             }
           ]
@@ -376,7 +376,7 @@ defmodule BlockChain do
           []
         end
 
-    IO.puts("input=#{Kernel.inspect(inputs)} output=#{Kernel.inspect(outputs)}")
+    # IO.puts("input=#{Kernel.inspect(inputs)} output=#{Kernel.inspect(outputs)}")
 
     %Transaction{
       ID: :crypto.hash(:sha256, :crypto.strong_rand_bytes(5)),
@@ -388,11 +388,11 @@ defmodule BlockChain do
   def send(bc, from, to, amount) do
     bc = BlockChain.add_block(bc, [new_utxo_transaction(bc, from, to, amount)])
 
-    IO.puts(
-      "\n\nAfterAddBlockTailHash=#{bc.tail}\nCacheTail=#{
-        Kernel.inspect(:ets.lookup(:bc_cache, :tail))
-      }"
-    )
+    # IO.puts(
+    #   "\n\nAfterAddBlockTailHash=#{bc.tail}\nCacheTail=#{
+    #     Kernel.inspect(:ets.lookup(:bc_cache, :tail))
+    #   }"
+    # )
 
     # BlockChain.print_blocks(bc, true)
     IO.puts("Success")
@@ -403,25 +403,27 @@ defmodule BlockChain do
     :ets.new(:bc_cache, [:set, :public, :named_table])
     bc = BlockChain.new_block_chain(%BlockChain{}, "Ranjan")
 
-    IO.puts(
-      "\n\nBeforeSendTailHash=#{bc.tail}\nCacheTail=#{
-        Kernel.inspect(:ets.lookup(:bc_cache, :tail))
-      }"
-    )
-
+    # IO.puts(
+    #   "\n\nBeforeSendTailHash=#{bc.tail}\nCacheTail=#{
+    #     Kernel.inspect(:ets.lookup(:bc_cache, :tail))
+    #   }"
+    # )
+    bc = send(bc, "Rachit", "Rachit", 10)
+    IO.puts("Rachit's Balance=#{get_balance(bc, "Rachit")}")
     bc = send(bc, "Rachit", "Aditya", 6)
     IO.puts("Rachit's Balance=#{get_balance(bc, "Rachit")}")
     IO.puts("Aditya's Balance=#{get_balance(bc, "Aditya")}")
     bc = send(bc, "Aditya", "Rachit", 2)
-
-    IO.puts(
-      "\n\nAfterSendTailHash=#{bc.tail}\nCacheTail=#{
-        Kernel.inspect(:ets.lookup(:bc_cache, :tail))
-      }"
-    )
-
     IO.puts("Rachit's Balance=#{get_balance(bc, "Rachit")}")
     IO.puts("Aditya's Balance=#{get_balance(bc, "Aditya")}")
+    bc = send(bc, "Rachit", "Aditya", 2)
+    IO.puts("Rachit's Balance=#{get_balance(bc, "Rachit")}")
+    IO.puts("Aditya's Balance=#{get_balance(bc, "Aditya")}")
+    # IO.puts(
+    #   "\n\nAfterSendTailHash=#{bc.tail}\nCacheTail=#{
+    #     Kernel.inspect(:ets.lookup(:bc_cache, :tail))
+    #   }"
+    # )
 
     # bc =
     #   BlockChain.add_block(bc, [
