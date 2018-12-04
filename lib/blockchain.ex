@@ -336,6 +336,13 @@ defmodule BlockChain do
     bc
   end
 
+  def buy(bc, buyer, amount) do
+    bc = send(bc, buyer, buyer, amount)
+    IO.puts "Bought #{amount} coins"
+    bc
+  end
+
+
   def main(args) do
     :ets.new(:bc_cache, [:set, :public, :named_table])
     bc = BlockChain.new_block_chain(%BlockChain{}, "Ranjan")
@@ -345,8 +352,8 @@ defmodule BlockChain do
     rachit = Map.get(Map.get(wallets, "Rachit"), :public_key)
     aditya = Map.get(Map.get(wallets, "Aditya"), :public_key)
     IO.puts("Rachit=#{rachit |> Base.encode16()} Aditya=#{aditya |> Base.encode16()}")
-    bc = send(bc, aditya, aditya, 7)
-    bc = send(bc, rachit, rachit, 10)
+    bc = buy(bc, aditya, 7)
+    bc = buy(bc, rachit, 10)
     # IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
     # IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
     # bc = send(bc, rachit, rachit, 10)
