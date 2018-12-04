@@ -16,26 +16,26 @@ defmodule BitcoinSimTest do
   end
 
   test "Aditya buy 7 coins", state do
-    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:aditya], state[:aditya], 7))
+    state = Map.put(state, :bc, BlockChain.buy(state[:bc], state[:aditya], 7))
     assert BlockChain.get_balance(state[:bc], state[:aditya]) === 7
   end
 
   test "Rachit buy 10 coins", state do
-    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:rachit], 10))
+    state = Map.put(state, :bc, BlockChain.buy(state[:bc], state[:rachit], 10))
     assert BlockChain.get_balance(state[:bc], state[:rachit]) === 10
   end
 
   test "Rachit sends Aditya 6 coins", state do
-    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:rachit], 10))
-    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:aditya], state[:aditya], 7))
+    state = Map.put(state, :bc, BlockChain.buy(state[:bc], state[:rachit], 10))
+    state = Map.put(state, :bc, BlockChain.buy(state[:bc], state[:aditya], 7))
     state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:aditya], 6))
     assert BlockChain.get_balance(state[:bc], state[:rachit]) === 4
     assert BlockChain.get_balance(state[:bc], state[:aditya]) === 13
   end
 
   test "Aditya sends Rachit 2 coins", state do
-    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:rachit], 10))
-    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:aditya], state[:aditya], 7))
+    state = Map.put(state, :bc, BlockChain.buy(state[:bc], state[:rachit], 10))
+    state = Map.put(state, :bc, BlockChain.buy(state[:bc], state[:aditya], 7))
     state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:aditya], 6))
     state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:aditya], state[:rachit], 2))
     assert BlockChain.get_balance(state[:bc], state[:rachit]) === 6
@@ -43,8 +43,8 @@ defmodule BitcoinSimTest do
   end
 
   test "Rachit sends Aditya 3 coins", state do
-    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:rachit], 10))
-    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:aditya], state[:aditya], 7))
+    state = Map.put(state, :bc, BlockChain.buy(state[:bc], state[:rachit], 10))
+    state = Map.put(state, :bc, BlockChain.buy(state[:bc], state[:aditya], 7))
     state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:aditya], 6))
     state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:aditya], state[:rachit], 2))
     state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:aditya], 3))
@@ -63,8 +63,8 @@ defmodule BitcoinSimTest do
   end
 
   test "Links in Blockchain", state do
-    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:rachit], 10))
-    state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:aditya], state[:aditya], 7))
+    state = Map.put(state, :bc, BlockChain.buy(state[:bc], state[:rachit], 10))
+    state = Map.put(state, :bc, BlockChain.buy(state[:bc], state[:aditya], 7))
     state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:aditya], 6))
 
     b =  elem(Enum.at(:ets.lookup(:bc_cache, elem(Enum.at(:ets.lookup(:bc_cache, :tail), 0), 1)), 0), 1)
