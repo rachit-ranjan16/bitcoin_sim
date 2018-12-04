@@ -338,10 +338,9 @@ defmodule BlockChain do
 
   def buy(bc, buyer, amount) do
     bc = send(bc, buyer, buyer, amount)
-    IO.puts "Bought #{amount} coins"
+    IO.puts("Bought #{amount} coins")
     bc
   end
-
 
   def main(args) do
     :ets.new(:bc_cache, [:set, :public, :named_table])

@@ -25,7 +25,7 @@ Blockchain, Mining Modules for Bitcoin Simulator
 -  Wallets
 -  Mining
 
-## Execution Instructions 
+## Execution Instructions
 
   - Main Function
     - Straight up execution covering the following flows  
@@ -42,13 +42,13 @@ Blockchain, Mining Modules for Bitcoin Simulator
       - `./bitcoin_sim`
   - Execute `mix test` to execute the following tests 
   - Unit Tests
-    - Computation of Hashes/Proof of Work
-      - ``
-  - Functional Tests
-    - 'Aditya buys 7 coins'
-    - 'Rachit buys 10 coins'
-    - 'Rachit sends Aditya 6 coins' 
-    - 'Aditya sends Rachit 2 coins'
-    - 'Rachit sends Aditya 3 coins'
-
-
+    - Tests Convergence of Calculating Hashes 
+      - `calculating hashes`
+    - Links in the Block Chain from the Tail stored in ets cache
+      -  `Links in Blockchain`
+  - Functional Tests (Cover the entire flow described above separately)
+    - `Aditya buys 7 coins`
+    - `Rachit buys 10 coins`
+    - `Rachit sends Aditya 6 coins` 
+    - `Aditya sends Rachit 2 coins`
+    - `Rachit sends Aditya 3 coins`

@@ -53,10 +53,12 @@ defmodule BitcoinSimTest do
   end
 
   test "calculating hashes" do
-    b = Block.create_block(
-          [Transaction.new_coinbase_tx(%Transaction{}, "Genesis", @genesisCoinbaseData)],
-          "Genesis"
-        )
+    b =
+      Block.create_block(
+        [Transaction.new_coinbase_tx(%Transaction{}, "Genesis", @genesisCoinbaseData)],
+        "Genesis"
+      )
+
     nonce_hash = ProofOfWork.run(ProofOfWork.new_pow(b, %ProofOfWork{}), b.nonce)
     assert elem(nonce_hash, 1) != nil
     assert elem(nonce_hash, 1) != nil
@@ -67,12 +69,16 @@ defmodule BitcoinSimTest do
     state = Map.put(state, :bc, BlockChain.buy(state[:bc], state[:aditya], 7))
     state = Map.put(state, :bc, BlockChain.send(state[:bc], state[:rachit], state[:aditya], 6))
 
-    b =  elem(Enum.at(:ets.lookup(:bc_cache, elem(Enum.at(:ets.lookup(:bc_cache, :tail), 0), 1)), 0), 1)
-    b.prevBlockHash |> Kernel.inspect |> IO.puts
-    
-    assert elem(Enum.at(:ets.lookup(:bc_cache, :tail), 0), 1) != nil
-    assert :ets.lookup(:bc_cache, b.prevBlockHash |> Kernel.inspect) != nil 
-    assert  elem(Enum.at(:ets.lookup(:bc_cache,  b.prevBlockHash), 0), 1).hash === b.prevBlockHash
+    b =
+      elem(
+        Enum.at(:ets.lookup(:bc_cache, elem(Enum.at(:ets.lookup(:bc_cache, :tail), 0), 1)), 0),
+        1
+      )
 
+    b.prevBlockHash |> Kernel.inspect() |> IO.puts()
+
+    assert elem(Enum.at(:ets.lookup(:bc_cache, :tail), 0), 1) != nil
+    assert :ets.lookup(:bc_cache, b.prevBlockHash |> Kernel.inspect()) != nil
+    assert elem(Enum.at(:ets.lookup(:bc_cache, b.prevBlockHash), 0), 1).hash === b.prevBlockHash
   end
 end
