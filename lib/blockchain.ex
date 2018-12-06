@@ -302,8 +302,8 @@ defmodule BlockChain do
       [
         %OutputTransaction{
           value: amount,
-          # public_key_hash: :crypto.hash(:ripemd160, :crypto.hash(:sha256, to))
-          public_key: to
+          public_key_hash: :crypto.hash(:ripemd160, :crypto.hash(:sha256, to))
+          # public_key: to
         }
       ] ++
         if elem(accumulated_unspentOuts, 0) > amount do
@@ -312,8 +312,8 @@ defmodule BlockChain do
           [
             %OutputTransaction{
               value: -1 * amount,
-              # public_key_hash: :crypto.hash(:ripemd160, :crypto.hash(:sha256, from))
-              public_key: from
+              public_key_hash: :crypto.hash(:ripemd160, :crypto.hash(:sha256, from))
+              # public_key: from
             }
           ]
         else
@@ -360,11 +360,11 @@ defmodule BlockChain do
     bc = send(bc, rachit, aditya, 6)
     IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
     IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
-    bc = send(bc, aditya, rachit, 2)
-    IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
-    IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
-    bc = send(bc, rachit, aditya, 3)
-    IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
-    IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
+    # bc = send(bc, aditya, rachit, 2)
+    # IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
+    # IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
+    # bc = send(bc, rachit, aditya, 3)
+    # IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
+    # IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
   end
 end
