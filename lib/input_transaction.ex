@@ -6,6 +6,7 @@ defmodule InputTransaction do
 
   def can_unlock_output_with(intx, public_key) do
     # :crypto.hash(:ripemd160, :crypto.hash(:sha256, intx.public_key)) === pub_key_hash
+    # IO.puts("InpX Unlock=#{intx.public_key === public_key}")
     intx.public_key === public_key
   end
 
