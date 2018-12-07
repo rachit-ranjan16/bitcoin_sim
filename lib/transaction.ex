@@ -1,5 +1,5 @@
 defmodule Transaction do
-  @subsidy 10
+  @subsidy 100
   defstruct ID: nil, in_tx: nil, out_tx: nil
 
   def new_coinbase_tx(%Transaction{} = t, to, data) do

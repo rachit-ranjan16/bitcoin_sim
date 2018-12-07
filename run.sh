@@ -3,5 +3,5 @@ mix format
 mix compile
 mix run 
 mix escript.build
-mix test
+# mix test
 ./bitcoin_sim 
