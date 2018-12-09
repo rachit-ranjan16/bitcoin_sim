@@ -1,5 +1,10 @@
 defmodule Transaction do
   @subsidy 100
+  @ecdsa_curve :secp256k1
+  @type_signature :ecdsa
+  @type_hash :sha256
+  # :crypto.sign(:ecdsa, :sha256, message, [private_key, :secp256k1])
+  # :crypto.verify(:ecdsa, :sha256, message, signature, [public_key, :secp256k1])
   defstruct ID: nil, in_tx: nil, out_tx: nil
 
   def new_coinbase_tx(%Transaction{} = t, to, data) do
@@ -81,4 +86,6 @@ defmodule Transaction do
       tx_copy = populate_copy(tx, prevTXs, tx_copy, 0, 1)
     end
   end
+
+  def sign(tx, priv_key, prevTXs)
 end
