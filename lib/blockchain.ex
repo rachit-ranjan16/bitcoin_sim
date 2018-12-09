@@ -2,13 +2,37 @@ defmodule BlockChain do
   @genesisCoinbaseData "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
   defstruct tail: nil
 
+  def verify_transactions(transactions, i, limit) when i === limit do
+    true
+  end
+
+  def verify_transactions(transactions, i, limit) when i < limit do
+    Transaction.verify(Enum.at(transactions, i)) and
+      verify_transactions(transactions, i + 1, limit)
+  end
+
   def add_block(bc, transactions) do
-    b = Block.create_block(transactions, elem(Enum.at(:ets.lookup(:bc_cache, :tail), 0), 1))
-    :ets.insert(:bc_cache, {b.hash, b})
-    :ets.insert(:bc_cache, {:tail, b.hash})
-    IO.puts("Added new block with hash=#{b.hash} to Blockchain")
-    # bc.tail = b.hash
-    %{bc | tail: b.hash}
+    bc =
+      if verify_transactions(transactions, 0, length(transactions)) do
+        b = Block.create_block(transactions, elem(Enum.at(:ets.lookup(:bc_cache, :tail), 0), 1))
+
+        :ets.insert(:bc_cache, {b.hash, b})
+        :ets.insert(:bc_cache, {:tail, b.hash})
+        IO.puts("Added new block with hash=#{b.hash} to Blockchain")
+        # bc.tail = b.hash
+        %{bc | tail: b.hash}
+      else
+        IO.puts("Couldn't Verify Transaction. Not Adding to the block")
+        bc
+      end
+
+    # b = Block.create_block(transactions, elem(Enum.at(:ets.lookup(:bc_cache, :tail), 0), 1))
+
+    # :ets.insert(:bc_cache, {b.hash, b})
+    # :ets.insert(:bc_cache, {:tail, b.hash})
+    # IO.puts("Added new block with hash=#{b.hash} to Blockchain")
+    # # bc.tail = b.hash
+    # %{bc | tail: b.hash}
   end
 
   def print_blocks(%BlockChain{tail: tail} = bc, continue)
