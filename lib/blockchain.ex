@@ -2,18 +2,18 @@ defmodule BlockChain do
   @genesisCoinbaseData "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
   defstruct tail: nil
 
-  def verify_transactions(transactions, i, limit) when i === limit do
+  def verify_transactions(transactions, i, limit, public_key) when i === limit do
     true
   end
 
-  def verify_transactions(transactions, i, limit) when i < limit do
-    Transaction.verify(Enum.at(transactions, i)) and
-      verify_transactions(transactions, i + 1, limit)
+  def verify_transactions(transactions, i, limit, public_key) when i < limit do
+    Transaction.verify(Enum.at(transactions, i), public_key) and
+      verify_transactions(transactions, i + 1, limit, public_key)
   end
 
-  def add_block(bc, transactions) do
+  def add_block(bc, transactions, public_key) do
     bc =
-      if verify_transactions(transactions, 0, length(transactions)) do
+      if verify_transactions(transactions, 0, length(transactions), public_key) do
         b = Block.create_block(transactions, elem(Enum.at(:ets.lookup(:bc_cache, :tail), 0), 1))
 
         :ets.insert(:bc_cache, {b.hash, b})
@@ -334,7 +334,7 @@ defmodule BlockChain do
     inputs = inputs ++ input_appender(outs, 0, length(outs), Enum.at(keys, i), from)
   end
 
-  def new_utxo_transaction(bc, from, to, amount) do
+  def new_utxo_transaction(bc, from, to, amount, private_key) do
     accumulated_unspentOuts = BlockChain.find_spendable_output(bc, from, amount)
     # IO.puts("acc_unspent=#{Kernel.inspect(accumulated_unspentOuts)}")
 
@@ -376,19 +376,26 @@ defmodule BlockChain do
 
       # IO.puts("input=#{Kernel.inspect(inputs)} output=#{Kernel.inspect(outputs)}")
 
-      %Transaction{
-        ID: :crypto.hash(:sha256, :crypto.strong_rand_bytes(5)),
-        in_tx: inputs,
-        out_tx: outputs
-      }
+      signed_tx =
+        Transaction.sign(
+          %Transaction{
+            ID: :crypto.hash(:sha256, :crypto.strong_rand_bytes(5)),
+            in_tx: inputs,
+            out_tx: outputs
+          },
+          private_key
+        )
+
+      IO.puts("SignedTransaction=#{Kernel.inspect(signed_tx)}")
+      signed_tx
     else
       IO.puts("ERROR Not enough funds")
       nil
     end
   end
 
-  def send(bc, from, to, amount) do
-    new_utxo = new_utxo_transaction(bc, from, to, amount)
+  def send(bc, from, to, amount, private_key, public_key) do
+    new_utxo = new_utxo_transaction(bc, from, to, amount, private_key)
     # IO.puts("Send: Trying to print UTXO")
     # IO.inspect(new_utxo)
 
@@ -396,15 +403,15 @@ defmodule BlockChain do
       if new_utxo != nil do
         # IO.puts("Printing new transaction from=#{from} to=#{to}")
         # IO.puts("Success")
-        BlockChain.add_block(bc, [new_utxo])
+        BlockChain.add_block(bc, [new_utxo], public_key)
       else
         IO.puts("Not Enough Funds")
         bc
       end
   end
 
-  def buy(bc, from, buyer, amount) do
-    bc = send(bc, from, buyer, amount)
+  def buy(bc, from, buyer, amount, private_key, public_key) do
+    bc = send(bc, from, buyer, amount, private_key, public_key)
     IO.puts("Bought #{amount} coins")
     bc
   end
@@ -423,6 +430,12 @@ defmodule BlockChain do
     coinbase = Map.get(Map.get(wallets, "coinbase"), :public_key)
     bc = BlockChain.new_block_chain(%BlockChain{}, coinbase)
 
+    {public_key, private_key} =
+      :crypto.generate_key(
+        :ecdh,
+        :secp256k1
+      )
+
     # IO.puts(
     #   "Aditya PublicKey=#{aditya |> Kernel.inspect() |> Base.encode64()} PublicKeyHash=#{
     #     :crypto.hash(:ripemd160, :crypto.hash(:sha256, aditya))
@@ -432,33 +445,33 @@ defmodule BlockChain do
     # )
 
     # IO.puts("Rachit=#{rachit |> Base.encode16()} Aditya=#{aditya |> Base.encode16()}")
-    bc = buy(bc, coinbase, aditya, 7)
+    bc = buy(bc, coinbase, aditya, 7, private_key, public_key)
     # IO.puts("\n\n\n")
     # print_blocks(bc, true)
     # IO.puts("\n\n\n")
-    bc = buy(bc, coinbase, rachit, 10)
-    bc = buy(bc, coinbase, kc, 12)
+    bc = buy(bc, coinbase, rachit, 10, private_key, public_key)
+    bc = buy(bc, coinbase, kc, 12, private_key, public_key)
     # print_blocks(bc, true)
     IO.puts("coinbase's Balance=#{get_balance(bc, coinbase)}")
     IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
     IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
     IO.puts("KC's Balance=#{get_balance(bc, kc)}")
-    bc = send(bc, rachit, aditya, 15)
+    bc = send(bc, rachit, aditya, 15, private_key, public_key)
     IO.puts("coinbase's Balance=#{get_balance(bc, coinbase)}")
     IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
     IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
     IO.puts("KC's Balance=#{get_balance(bc, kc)}")
-    bc = send(bc, kc, aditya, 6)
+    bc = send(bc, kc, aditya, 6, private_key, public_key)
     IO.puts("coinbase's Balance=#{get_balance(bc, coinbase)}")
     IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
     IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
     IO.puts("KC's Balance=#{get_balance(bc, kc)}")
-    bc = send(bc, aditya, rachit, 2)
+    bc = send(bc, aditya, rachit, 2, private_key, public_key)
     IO.puts("coinbase's Balance=#{get_balance(bc, coinbase)}")
     IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
     IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
     IO.puts("KC's Balance=#{get_balance(bc, kc)}")
-    bc = send(bc, aditya, kc, 2)
+    bc = send(bc, aditya, kc, 2, private_key, public_key)
     IO.puts("coinbase's Balance=#{get_balance(bc, coinbase)}")
     IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
     IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")

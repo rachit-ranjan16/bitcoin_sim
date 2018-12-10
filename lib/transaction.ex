@@ -1,9 +1,6 @@
 defmodule Transaction do
   @subsidy 100
-  @ecdsa_curve :secp256k1
-  @type_signature :ecdsa
-  @type_hash :sha256
-  # :crypto.sign(:ecdsa, :sha256, message, [private_key, :secp256k1])
+  # signature = :crypto.sign(:ecdsa, :sha256, message, [private_key, :secp256k1])
   # :crypto.verify(:ecdsa, :sha256, message, signature, [public_key, :secp256k1])
   defstruct ID: nil, in_tx: nil, out_tx: nil
 
@@ -66,26 +63,31 @@ defmodule Transaction do
     %Transaction{in_tx: intx, out_tx: outx}
   end
 
-  def populate_copy(tx, prevTXs, tx_copy, i, limit) when i === limit do
-    tx_copy
+  def sign(tx, private_key) do
+    intx = Enum.at(tx.in_tx, 0)
+
+    %{
+      tx
+      | in_tx: [
+          Map.put(
+            intx,
+            :signature,
+            :crypto.sign(:ecdsa, :sha256, Map.get(intx, :tx_id), [private_key, :secp256k1])
+          )
+        ]
+    }
   end
 
-  def populate_copy(tx, prevTXs, tx_copy, i, limit) when i < limit do
-    prevTX = Map.get(prevTXs, Enum.at(Map.get(tx.in_tx, :tx_id)))
-  end
-
-  def verify(tx) do
-    true
-  end
-
-  def verify(tx, prevTXs) do
+  def verify(tx, public_key) do
     if Transaction.is_coinbase(tx) do
       true
     else
-      tx_copy = trimmed_copy(tx)
-      tx_copy = populate_copy(tx, prevTXs, tx_copy, 0, 1)
+      intx = Enum.at(tx.in_tx, 0)
+
+      :crypto.verify(:ecdsa, :sha256, Map.get(intx, :tx_id), Map.get(intx, :signature), [
+        public_key,
+        :secp256k1
+      ])
     end
   end
-
-  def sign(tx, priv_key, prevTXs)
 end
