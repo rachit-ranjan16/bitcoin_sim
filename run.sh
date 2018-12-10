@@ -4,4 +4,4 @@ mix compile
 mix run 
 mix escript.build
 # mix test
-./bitcoin_sim 
+./bitcoin_sim 2 2

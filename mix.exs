@@ -6,7 +6,7 @@ defmodule BitcoinSim.MixProject do
       app: :bitcoin_sim,
       version: "0.1.0",
       elixir: "~> 1.7",
-      escript: [main_module: BlockChain],
+      escript: [main_module: BitcoinSim],
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
