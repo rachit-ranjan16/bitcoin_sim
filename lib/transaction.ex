@@ -1,5 +1,5 @@
 defmodule Transaction do
-  @subsidy 100
+  @subsidy 10000
   # signature = :crypto.sign(:ecdsa, :sha256, message, [private_key, :secp256k1])
   # :crypto.verify(:ecdsa, :sha256, message, signature, [public_key, :secp256k1])
   defstruct ID: nil, in_tx: nil, out_tx: nil
