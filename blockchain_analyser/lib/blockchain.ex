@@ -17,14 +17,15 @@ defmodule BlockChain do
     %{bc | tail: genBlock.hash}
   end
 
+  # def 
   def add_block(bc, transactions, public_key, cache_id) do
     bc =
       if verify_transactions(transactions, 0, length(transactions), public_key) do
         b = Block.create_block(transactions, elem(Enum.at(:ets.lookup(cache_id, :tail), 0), 1))
-
         :ets.insert(cache_id, {b.hash, b})
         :ets.insert(cache_id, {:tail, b.hash})
-        IO.puts("Added new block with hash=#{b.hash} to Blockchain")
+
+        # IO.puts("Added new block with hash=#{b.hash} to Blockchain")
         # bc.tail = b.hash
         %{bc | tail: b.hash}
       else
@@ -348,7 +349,7 @@ defmodule BlockChain do
     accumulated_unspentOuts = BlockChain.find_spendable_output(bc, from, amount, cache_id)
     # IO.puts("acc_unspent=#{Kernel.inspect(accumulated_unspentOuts)}")
 
-    if elem(accumulated_unspentOuts, 0) > amount do
+    if elem(accumulated_unspentOuts, 0) >= amount do
       keys = Map.keys(elem(accumulated_unspentOuts, 1))
 
       inputs =
@@ -370,7 +371,7 @@ defmodule BlockChain do
             # public_key: to
           }
         ] ++
-          if elem(accumulated_unspentOuts, 0) > amount do
+          if elem(accumulated_unspentOuts, 0) >= amount do
             # IO.puts("Trying to create output transaction")
 
             [
@@ -422,7 +423,7 @@ defmodule BlockChain do
 
   def buy(bc, from, buyer, amount, private_key, public_key, cache_id) do
     bc = send(bc, from, buyer, amount, private_key, public_key, cache_id)
-    IO.puts("#{cache_id} BoughtBought #{amount} coins")
+    IO.puts("#{cache_id} Bought #{amount} coins")
     bc
   end
 
