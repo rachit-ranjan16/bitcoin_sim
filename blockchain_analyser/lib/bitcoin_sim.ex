@@ -22,6 +22,56 @@ defmodule BitcoinSim do
     end
   end
 
+  def handle_cast({:get_balance}, [data_cache, num_nodes, num_transactions]) do
+    for i <- 1..num_nodes do
+      :ets.insert(
+        data_cache,
+        {Peer.get_node_name_string(i), GenServer.cast(Peer.get_node_name(i), {:get_balance})}
+      )
+    end
+  end
+
+  def handle_cast({:initiate}, [data_cache, num_nodes, num_transactions]) do
+    for i <- 1..num_nodes do
+      GenServer.call(Peer.get_node_name(i), {:initial_buy})
+    end
+
+    # IO.puts("Going to sleep")
+    Process.sleep(5000)
+    # IO.puts("Waking Up from sleep")
+    for i <- 1..num_transactions do
+      {from, to} = get_from_and_to(num_nodes)
+      IO.puts("Transacting from = #{Peer.get_node_name(from)} to = #{Peer.get_node_name(to)}")
+      GenServer.cast(Peer.get_node_name(from), {:send, to, @token_amount})
+      Process.sleep(100)
+    end
+
+    # Process.sleep(5000)
+    {:noreply, [data_cache, num_nodes, num_transactions]}
+  end
+
+  def init([data_cache, num_nodes, num_transactions]) do
+    :ets.new(get_node_name(id), [:set, :public, :named_table])
+    wallets = populate_wallet(%{}, 1, num_nodes)
+    wallets = Map.put(wallets, :coinbase, Wallet.new_wallet(%Wallet{}))
+    coinbase = Map.get(Map.get(wallets, :coinbase), :public_key)
+
+    genesis =
+      Block.create_block(
+        [Transaction.new_coinbase_tx(%Transaction{}, coinbase, @genesisCoinbaseData)],
+        "Genesis"
+      )
+
+    for i <- 1..num_nodes do
+      GenServer.start_link(Peer, [i, genesis, wallets, num_nodes], name: Peer.get_node_name(i))
+    end
+
+    {:ok, [data_cache, num_nodes, num_transactions]}
+    # for i <- 1..num_nodes do
+    #   GenServer.cast(Peer.get_node_name(i), {:initial_buy})
+    # end
+  end
+
   def main(args) do
     num_nodes = String.to_integer(Enum.at(args, 0))
     num_transactions = String.to_integer(Enum.at(args, 1))
