@@ -22,11 +22,11 @@ defmodule BitcoinSim do
     end
   end
 
-  def balance_map_populator(bal_map, i, limit) when i === limit do
+  def balance_map_populator(bal_map, i, limit) when i > limit do
     bal_map
   end
 
-  def balance_map_populator(bal_map, i, limit) when i < limit do
+  def balance_map_populator(bal_map, i, limit) when i <= limit do
     bal_map =
       Map.put(
         bal_map,
