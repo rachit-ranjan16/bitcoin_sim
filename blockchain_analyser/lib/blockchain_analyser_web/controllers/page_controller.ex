@@ -14,7 +14,7 @@ defmodule BlockchainAnalyserWeb.PageController do
   end
 
   def start(conn, params) do
-    GenServer.start_link(BitcoinSim, [15, 20], name: :bitcoin_sim)
+    GenServer.start_link(BitcoinSim, [100, 20], name: :bitcoin_sim)
     GenServer.cast(:bitcoin_sim, {:initiate})
     render(conn, "start.html")
   end
@@ -23,6 +23,7 @@ defmodule BlockchainAnalyserWeb.PageController do
     trans_time_list = GenServer.call(:bitcoin_sim, {:get_trans_time}, 30000)
     trans_time_map = 1..length(trans_time_list) |> Stream.zip(trans_time_list) |> Enum.into(%{})
     conn = put_session(conn, :trans_time_map, trans_time_map)
+    GenServer.cast(:bitcoin_sim, {:transact})
     render(conn, "transaction_time.html")
   end
 end
