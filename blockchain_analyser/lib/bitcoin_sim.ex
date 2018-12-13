@@ -31,14 +31,14 @@ defmodule BitcoinSim do
       Map.put(
         bal_map,
         Peer.get_node_name_string(i),
-        GenServer.call(Peer.get_node_name(i), {:get_balance})
+        GenServer.call(Peer.get_node_name(i), {:balance})
       )
 
     balance_map_populator(bal_map, i + 1, limit)
   end
 
   def handle_call({:get_balances}, _from, [num_nodes, num_transactions]) do
-    {:reply, balance_map_populator(%{}, 0, num_nodes), [num_nodes, num_transactions]}
+    {:reply, balance_map_populator(%{}, 1, num_nodes), [num_nodes, num_transactions]}
   end
 
   def handle_cast({:initiate}, [num_nodes, num_transactions]) do
