@@ -1,20 +1,54 @@
-# BlockchainAnalyser
+# BitcoinSim 
 
-To start your Phoenix server:
+## Project 4.1
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
-  * Install Node.js dependencies with `cd assets && npm install`
-  * Start Phoenix endpoint with `mix phx.server`
+### Description 
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+Blockchain, Mining Modules for Bitcoin Simulator 
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+## Group Members 
 
-## Learn more
+- Rachit Ranjan 
+- Aditya Vashist 
 
-  * Official website: http://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+## Prerequisites 
+
+  - Elixir 1.7+ Installation  
+
+## Functioning Features 
+
+- Blockchain creation
+  - All blocks are stored in ets cache
+    - Key: Block Hash, Value: Block
+    - Key: `:tail`, Value: Block Hash of last block  
+-  Transactions
+-  Wallets
+-  Mining
+
+## Execution Instructions
+
+  - Main Function
+    - Straight up execution covering the following flows  
+      - Initialization of Blockchain with Coinbase transaction in ets cache 
+      - Creation of Wallets for two participants with initial Bitcoin
+      - Transactions between the two participants
+        - Addition and Mining of Blocks 
+      - Get Balance after each transaction
+        - Mining for a User  
+    - Execute the following
+      - `mix compile`
+      - `mix run`
+      - `mix escript.build`
+      - `./bitcoin_sim`
+  - Execute `mix test` to execute the following tests 
+  - Unit Tests
+    - Tests Convergence of Calculating Hashes 
+      - `calculating hashes`
+    - Links in the Block Chain from the Tail stored in ets cache
+      -  `Links in Blockchain`
+  - Functional Tests (Cover the entire flow described above separately)
+    - `Aditya buys 7 coins`
+    - `Rachit buys 10 coins`
+    - `Rachit sends Aditya 6 coins` 
+    - `Aditya sends Rachit 2 coins`
+    - `Rachit sends Aditya 3 coins`
