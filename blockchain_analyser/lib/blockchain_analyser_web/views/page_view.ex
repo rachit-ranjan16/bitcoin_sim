@@ -12,7 +12,7 @@ defmodule BlockchainAnalyserWeb.PageView do
     |> Map.keys()
   end
 
-  def something(conn) do
+  def get_balance_object(conn) do
     Jason.encode!(get_session(conn, :balance))
   end
 end

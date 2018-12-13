@@ -22,10 +22,6 @@ defmodule BlockchainAnalyserWeb.Router do
 
     get "/", PageController, :index
     get "/start", PageController, :start
+    get "/balance", PageController, :balance
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", BlockchainAnalyserWeb do
-  #   pipe_through :api
-  # end
 end

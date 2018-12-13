@@ -4,12 +4,13 @@ function temp() {
 }
 </script>
 <section class="phx-hero">
-  <h1 id="demo"><%= gettext "Welcome to %{name}!", name: "BlockChain Analyser Application" %></h1>
+  <h1 id="demo"><%= gettext "Welcome to %{name}!", name: "BlockChain Analyser Application started" %></h1>
   <%# <p>A productive web framework that<br/>does not compromise speed and maintainability.</p> %>
 </section>
 
 <section class="row">
 <article class="column">
 <%=button("Start Process", to: "/start", method: "get") %>
+<%=button("Get balances", to: "/balance", method: "get") %>
   </article>
 </section>

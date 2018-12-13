@@ -43,3 +43,5 @@ npm-debug.log
 
 *.beam
 *log*
+/node_modules/*
+/assets/*

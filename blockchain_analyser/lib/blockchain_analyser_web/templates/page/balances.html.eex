@@ -10,6 +10,7 @@
 </head>
 <body>
     <div class="phx-hero">
+    <h1 id="demo"><%= gettext "Welcome to %{name}!", name: "BlockChain Analyser Application" %></h1>
 </div>
   <div class="container">
     <canvas id="myChart"></canvas>
@@ -18,17 +19,12 @@
   <script>
     let myChart = document.getElementById('myChart').getContext('2d');
 
-    // Global Options
     Chart.defaults.global.defaultFontFamily = 'Lato';
     Chart.defaults.global.defaultFontSize = 18;
     Chart.defaults.global.defaultFontColor = '#777';
-    //var obj = <%= something(@conn) %>
-    var obj = <%= raw(Poison.encode!(something(@conn))) %>
-    //obj='${obj}'
-    //obj = obj.replace(/&quot;/g,'"');
+    var obj = <%= raw(Poison.encode!(get_balance_object(@conn))) %>
     console.log(obj);
     obj = JSON.parse(obj)
-    //console.log(window.inquiries_per_month);
     var labels = Object.keys(obj);
     var data = Object.values(obj);
     console.log(labels);
@@ -38,14 +34,19 @@
       data:{
         labels: labels,
         datasets:[{
-          label:'Population',
-          data: data
+          label:'Bitcoins',
+          data: data,
+          backgroundColor:'green',
+          borderWidth:1,
+          borderColor:'#777',
+          hoverBorderWidth:3,
+          hoverBorderColor:'#000'
         }]
       },
       options:{
         title:{
           display:true,
-          text:'Largest Cities In Massachusetts',
+          text:'Wallet Balances',
           fontSize:25
         },
         legend:{
