@@ -86,11 +86,12 @@ defmodule Peer do
   end
 
   def handle_cast({:send, to, amount}, [id, bc, wallets, n]) do
+    start_ts = :os.system_time(:micro_seconds)
     public_key = Map.get(Map.get(wallets, Peer.get_node_name(id)), :public_key)
     private_key = Map.get(Map.get(wallets, Peer.get_node_name(id)), :private_key)
     to_public_key = Map.get(Map.get(wallets, Peer.get_node_name(to)), :public_key)
     initial_tail = Map.get(bc, :tail)
-
+    
     bc =
       BlockChain.send(
         bc,
@@ -103,6 +104,7 @@ defmodule Peer do
       )
 
     if Map.get(bc, :tail) != initial_tail do
+      GenServer.cast(:bitcoin_sim, {:trans_time}, :os.system_time(:micro_seconds) - start_ts)
       broadcast(
         id,
         n,
@@ -137,4 +139,6 @@ defmodule Peer do
        get_node_name(id)
      ), [id, bc, wallets, n]}
   end
+
+  # def handle_cast
 end
