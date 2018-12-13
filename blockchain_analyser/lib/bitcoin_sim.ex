@@ -51,7 +51,6 @@ defmodule BitcoinSim do
   end
 
   def init([data_cache, num_nodes, num_transactions]) do
-    :ets.new(get_node_name(id), [:set, :public, :named_table])
     wallets = populate_wallet(%{}, 1, num_nodes)
     wallets = Map.put(wallets, :coinbase, Wallet.new_wallet(%Wallet{}))
     coinbase = Map.get(Map.get(wallets, :coinbase), :public_key)
