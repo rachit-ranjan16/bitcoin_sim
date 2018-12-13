@@ -45,3 +45,5 @@ npm-debug.log
 *log*
 /node_modules/*
 /assets/*
+
+mix.lock
