@@ -26,7 +26,7 @@ defmodule BitcoinSim do
     for i <- 1..num_nodes do
       :ets.insert(
         data_cache,
-        {Peer.get_node_name_string(i), GenServer.cast(Peer.get_node_name(i), {:get_balance})}
+        {Peer.get_node_name_string(i), GenServer.call(Peer.get_node_name(i), {:get_balance})}
       )
     end
   end

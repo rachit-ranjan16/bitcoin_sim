@@ -128,7 +128,7 @@ defmodule Peer do
     {:noreply, [id, bc, wallets, n]}
   end
 
-  def handle_cast({:test}, from, [id, bc, wallets, n]) do
+  def handle_cast({:get_balance}, from, [id, bc, wallets, n]) do
     # IO.puts("Node=#{get_node_name(id)} Got a call from=#{Kernel.inspect(from)}")
     {:reply,
      BlockChain.get_balance(
