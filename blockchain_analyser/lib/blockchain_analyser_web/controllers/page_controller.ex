@@ -20,11 +20,9 @@ defmodule BlockchainAnalyserWeb.PageController do
   end
 
   def transaction_time(conn, _params) do
-    trans_time_list = GenServer.call(:bitcoin_sim, {:get_trans_time},30000)
+    trans_time_list = GenServer.call(:bitcoin_sim, {:get_trans_time}, 30000)
     trans_time_map = 1..length(trans_time_list) |> Stream.zip(trans_time_list) |> Enum.into(%{})
     conn = put_session(conn, :trans_time_map, trans_time_map)
     render(conn, "transaction_time.html")
   end
-
-
 end

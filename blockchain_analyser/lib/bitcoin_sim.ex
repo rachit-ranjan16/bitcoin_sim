@@ -38,7 +38,7 @@ defmodule BitcoinSim do
   end
 
   def handle_call({:get_balances}, _from, [num_nodes, num_transactions, times]) do
-    {:reply, balance_map_populator(%{}, 1, num_nodes),[num_nodes, num_transactions, times]}
+    {:reply, balance_map_populator(%{}, 1, num_nodes), [num_nodes, num_transactions, times]}
   end
 
   def handle_cast({:initiate}, [num_nodes, num_transactions, times]) do
@@ -55,6 +55,19 @@ defmodule BitcoinSim do
       GenServer.cast(Peer.get_node_name(from), {:send, to, @token_amount})
       # Process.sleep(1000)
     end
+
+    # Process.sleep(5000)
+    {:noreply, [num_nodes, num_transactions, times]}
+  end
+
+  def handle_cast({:transact}, [num_nodes, num_transactions, times]) do
+    for i <- 1..num_transactions do
+      {from, to} = get_from_and_to(num_nodes)
+      IO.puts("Transacting from = #{Peer.get_node_name(from)} to = #{Peer.get_node_name(to)}")
+      GenServer.cast(Peer.get_node_name(from), {:send, to, @token_amount})
+      # Process.sleep(1000)
+    end
+
     # Process.sleep(5000)
     {:noreply, [num_nodes, num_transactions, times]}
   end
@@ -63,10 +76,10 @@ defmodule BitcoinSim do
     {:reply, times, [num_nodes, num_transactions, times]}
   end
 
-
   def handle_cast({:trans_time, ts}, [num_nodes, num_transactions, times]) do
     {:noreply, [num_nodes, num_transactions, times ++ [ts]]}
   end
+
   def init([num_nodes, num_transactions]) do
     wallets = populate_wallet(%{}, 1, num_nodes)
     wallets = Map.put(wallets, :coinbase, Wallet.new_wallet(%Wallet{}))
@@ -87,6 +100,4 @@ defmodule BitcoinSim do
     #   GenServer.cast(Peer.get_node_name(i), {:initial_buy})
     # end
   end
-
-  
 end
