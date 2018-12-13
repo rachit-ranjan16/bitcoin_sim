@@ -17,8 +17,8 @@ defmodule Peer do
   end
 
   def get_node_name_string(i) do
-    i |> Integer.to_string() |> String.pad_leading(4, "0")
-    "Elixir.N" <> i
+    id = i |> Integer.to_string() |> String.pad_leading(4, "0")
+    ("Elixir.N" <> id)
   end
 
   def broadcast(id, n, block, public_key) do
@@ -128,7 +128,7 @@ defmodule Peer do
     {:noreply, [id, bc, wallets, n]}
   end
 
-  def handle_call({:test}, from, [id, bc, wallets, n]) do
+  def handle_cast({:test}, from, [id, bc, wallets, n]) do
     # IO.puts("Node=#{get_node_name(id)} Got a call from=#{Kernel.inspect(from)}")
     {:reply,
      BlockChain.get_balance(

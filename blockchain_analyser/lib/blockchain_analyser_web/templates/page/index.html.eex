@@ -1,9 +1,19 @@
+<script>
+function temp() {
+  document.getElementById("demo").innerHTML =   <%=Atom.to_string(Peer.get_node_name(3))%>;
+}
+</script>
 <section class="phx-hero">
-  <h1><%= gettext "Welcome to %{name}!", name: "Phoenix" %></h1>
-  <p>A productive web framework that<br/>does not compromise speed and maintainability.</p>
+  <h1 id="demo"><%= gettext "Welcome to %{name}!", name: "BlockChain Analyser Application" %></h1>
+  <%# <p>A productive web framework that<br/>does not compromise speed and maintainability.</p> %>
 </section>
 
 <section class="row">
+<article class="column">
+<h2> Test </h2>
+<%# <button onclick="temp()"> click me</button> %>
+<%=button("Start Process", to: "/start", method: "get") %>
+<%# </article>
   <article class="column">
     <h2>Resources</h2>
     <ul>
@@ -31,5 +41,5 @@
         <a href="https://twitter.com/elixirphoenix">Twitter @elixirphoenix</a>
       </li>
     </ul>
-  </article>
+  </article> %>
 </section>

@@ -33,7 +33,7 @@ defmodule BitcoinSim do
 
   def handle_cast({:initiate}, [data_cache, num_nodes, num_transactions]) do
     for i <- 1..num_nodes do
-      GenServer.call(Peer.get_node_name(i), {:initial_buy})
+      GenServer.cast(Peer.get_node_name(i), {:initial_buy})
     end
 
     # IO.puts("Going to sleep")

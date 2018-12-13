@@ -9,7 +9,7 @@ defmodule BlockchainAnalyser.Application do
     # List all child processes to be supervised
     children = [
       # Start the Ecto repository
-      BlockchainAnalyser.Repo,
+      # BlockchainAnalyser.Repo,
       # Start the endpoint when the application starts
       BlockchainAnalyserWeb.Endpoint
       # Starts a worker by calling: BlockchainAnalyser.Worker.start_link(arg)
