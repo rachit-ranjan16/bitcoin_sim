@@ -61,7 +61,7 @@ defmodule BitcoinSim do
   end
 
   def handle_cast({:transact}, [num_nodes, num_transactions, times]) do
-    for i <- 1..num_transactions do
+    for i <- 1..Enum.random(10..30) do
       {from, to} = get_from_and_to(num_nodes)
       IO.puts("Transacting from = #{Peer.get_node_name(from)} to = #{Peer.get_node_name(to)}")
       GenServer.cast(Peer.get_node_name(from), {:send, to, @token_amount})
