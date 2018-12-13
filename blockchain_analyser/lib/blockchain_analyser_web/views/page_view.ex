@@ -15,4 +15,8 @@ defmodule BlockchainAnalyserWeb.PageView do
   def get_balance_object(conn) do
     Jason.encode!(get_session(conn, :balance))
   end
+  def get_trans_time_map_object(conn) do
+    Jason.encode!(get_session(conn, :trans_time_map))
+  end
+
 end

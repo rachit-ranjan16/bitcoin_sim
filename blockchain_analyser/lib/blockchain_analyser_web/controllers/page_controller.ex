@@ -14,12 +14,17 @@ defmodule BlockchainAnalyserWeb.PageController do
   end
 
   def start(conn, params) do
-    # BitcoinSim.driver(["10","10"])
-    GenServer.start_link(BitcoinSim, [10, 10], name: :bitcoin_sim)
+    GenServer.start_link(BitcoinSim, [15, 20], name: :bitcoin_sim)
     GenServer.cast(:bitcoin_sim, {:initiate})
-    Process.sleep(10000)
     render(conn, "start.html")
-
-    # render(conn, "index.html")
   end
+
+  def transaction_time(conn, _params) do
+    trans_time_list = GenServer.call(:bitcoin_sim, {:get_trans_time},30000)
+    trans_time_map = 1..length(trans_time_list) |> Stream.zip(trans_time_list) |> Enum.into(%{})
+    conn = put_session(conn, :trans_time_map, trans_time_map)
+    render(conn, "transaction_time.html")
+  end
+
+
 end

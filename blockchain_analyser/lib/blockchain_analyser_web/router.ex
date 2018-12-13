@@ -23,5 +23,6 @@ defmodule BlockchainAnalyserWeb.Router do
     get "/", PageController, :index
     get "/start", PageController, :start
     get "/balance", PageController, :balance
+    get "/transaction_time", PageController, :transaction_time
   end
 end

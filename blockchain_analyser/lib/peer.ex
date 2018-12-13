@@ -104,7 +104,7 @@ defmodule Peer do
       )
 
     if Map.get(bc, :tail) != initial_tail do
-      GenServer.cast(:bitcoin_sim, {:trans_time}, :os.system_time(:micro_seconds) - start_ts)
+      GenServer.cast(:bitcoin_sim, {:trans_time, :os.system_time(:micro_seconds) - start_ts})
       broadcast(
         id,
         n,

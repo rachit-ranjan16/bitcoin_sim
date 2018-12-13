@@ -53,17 +53,19 @@ defmodule BitcoinSim do
       {from, to} = get_from_and_to(num_nodes)
       IO.puts("Transacting from = #{Peer.get_node_name(from)} to = #{Peer.get_node_name(to)}")
       GenServer.cast(Peer.get_node_name(from), {:send, to, @token_amount})
-      Process.sleep(100)
+      # Process.sleep(1000)
     end
     # Process.sleep(5000)
     {:noreply, [num_nodes, num_transactions, times]}
   end
 
-  def handle_call({:get_trans_times}, _from, [num_nodes, num_transactions, times]) do
+  def handle_call({:get_trans_time}, _from, [num_nodes, num_transactions, times]) do
     {:reply, times, [num_nodes, num_transactions, times]}
   end
-  def handle_cast({:tans_time, ts}, [num_nodes, num_transactions, times]) do
-    {:noreply, [num_nodes, num_transactions, times ++ ts]}
+
+
+  def handle_cast({:trans_time, ts}, [num_nodes, num_transactions, times]) do
+    {:noreply, [num_nodes, num_transactions, times ++ [ts]]}
   end
   def init([num_nodes, num_transactions]) do
     wallets = populate_wallet(%{}, 1, num_nodes)
@@ -86,43 +88,5 @@ defmodule BitcoinSim do
     # end
   end
 
-  def main(args) do
-    num_nodes = String.to_integer(Enum.at(args, 0))
-    num_transactions = String.to_integer(Enum.at(args, 1))
-    wallets = populate_wallet(%{}, 1, num_nodes)
-    wallets = Map.put(wallets, :coinbase, Wallet.new_wallet(%Wallet{}))
-    coinbase = Map.get(Map.get(wallets, :coinbase), :public_key)
-
-    genesis =
-      Block.create_block(
-        [Transaction.new_coinbase_tx(%Transaction{}, coinbase, @genesisCoinbaseData)],
-        "Genesis"
-      )
-
-    for i <- 1..num_nodes do
-      GenServer.start_link(Peer, [i, genesis, wallets, num_nodes], name: Peer.get_node_name(i))
-    end
-
-    for i <- 1..num_nodes do
-      GenServer.cast(Peer.get_node_name(i), {:initial_buy})
-    end
-
-    # IO.puts("Going to sleep")
-    Process.sleep(5000)
-    # IO.puts("Waking Up from sleep")
-    for i <- 1..num_transactions do
-      {from, to} = get_from_and_to(num_nodes)
-      IO.puts("Transacting from = #{Peer.get_node_name(from)} to = #{Peer.get_node_name(to)}")
-      GenServer.cast(Peer.get_node_name(from), {:send, to, @token_amount})
-      Process.sleep(100)
-    end
-
-    Process.sleep(5000)
-
-    for i <- 1..num_nodes do
-      GenServer.cast(Peer.get_node_name(i), {:get_balance})
-    end
-
-    Process.sleep(:infinity)
-  end
+  
 end

@@ -30,7 +30,7 @@
     Chart.defaults.global.defaultFontFamily = 'Lato';
     Chart.defaults.global.defaultFontSize = 18;
     Chart.defaults.global.defaultFontColor = '#777';
-    var obj = <%= raw(Poison.encode!(get_balance_object(@conn))) %>
+    var obj = <%= raw(Poison.encode!(get_trans_time_map_object(@conn))) %>
     console.log(obj);
     obj = JSON.parse(obj)
     var labels = Object.keys(obj);
@@ -42,7 +42,7 @@
       data:{
         labels: labels,
         datasets:[{
-          label:'Bitcoins',
+          label:'Time(micro sec)',
           data: data,
           backgroundColor:'green',
           borderWidth:1,
@@ -54,7 +54,7 @@
       options:{
         title:{
           display:true,
-          text:'Wallet Balances',
+          text:'Time taken to Mine Block',
           fontSize:25
         },
         legend:{
