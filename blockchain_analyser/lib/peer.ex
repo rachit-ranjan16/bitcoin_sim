@@ -4,10 +4,7 @@ defmodule Peer do
 
   def init([id, genesis, wallets, n]) do
     :ets.new(get_node_name(id), [:set, :public, :named_table])
-    # wallets = Map.put(wallets, get_node_name(id), Wallet.new_wallet(%Wallet{}))
     bc = BlockChain.add_genesis_block(%BlockChain{}, genesis, get_node_name(id))
-    # GenServer.cast(
-    # BlockChain.print_blocks(bc, true, get_node_name(id))
     {:ok, [id, bc, wallets, n]}
   end
 
@@ -41,15 +38,6 @@ defmodule Peer do
         get_node_name(id)
       )
 
-    # if id === 1 do
-    #   IO.puts(
-    #     "\n\n\n--------------------Printing Blockchain for Peer=#{get_node_name(id)}----------------------\n\n\n"
-    #   )
-
-    #   BlockChain.print_blocks(bc, true, get_node_name(id))
-    #   IO.puts("\n\n\n----------------------Done Printing--------------------\n\n\n")
-    # end
-
     {:noreply, [id, bc, _wallets, _n]}
   end
 
@@ -69,11 +57,6 @@ defmodule Peer do
         get_node_name(id)
       )
 
-    # IO.puts(
-    #   "\n\n\nCheck Return=#{
-    #     Kernel.inspect(elem(Enum.at(:ets.lookup(get_node_name(id), Map.get(bc, :tail)), 0), 1))
-    #   }"
-    # )
     broadcast(
       id,
       n,
@@ -81,7 +64,6 @@ defmodule Peer do
       public_key
     )
 
-    # BlockChain.print_blocks(bc, true, get_node_name(id))
     {:noreply, [id, bc, wallets, n]}
   end
 
@@ -132,7 +114,6 @@ defmodule Peer do
   end
 
   def handle_call({:balance}, from, [id, bc, wallets, n]) do
-    # IO.puts("Node=#{get_node_name(id)} Got a call from=#{Kernel.inspect(from)}")
     {:reply,
      BlockChain.get_balance(
        bc,
@@ -140,6 +121,4 @@ defmodule Peer do
        get_node_name(id)
      ), [id, bc, wallets, n]}
   end
-
-  # def handle_cast
 end

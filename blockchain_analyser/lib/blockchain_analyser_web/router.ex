@@ -9,10 +9,6 @@ defmodule BlockchainAnalyserWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  # pipeline :csrf do
-  #   plug :protect_from_forgery # to here
-  # end
-
   pipeline :api do
     plug :accepts, ["json"]
   end

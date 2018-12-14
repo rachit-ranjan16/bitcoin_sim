@@ -25,26 +25,15 @@ defmodule BlockChain do
         :ets.insert(cache_id, {b.hash, b})
         :ets.insert(cache_id, {:tail, b.hash})
 
-        # IO.puts("Added new block with hash=#{b.hash} to Blockchain")
-        # bc.tail = b.hash
         %{bc | tail: b.hash}
       else
         IO.puts("Couldn't Verify Transaction. Not Adding to the block")
         bc
       end
-
-    # b = Block.create_block(transactions, elem(Enum.at(:ets.lookup(:bc_cache, :tail), 0), 1))
-
-    # :ets.insert(:bc_cache, {b.hash, b})
-    # :ets.insert(:bc_cache, {:tail, b.hash})
-    # IO.puts("Added new block with hash=#{b.hash} to Blockchain")
-    # # bc.tail = b.hash
-    # %{bc | tail: b.hash}
   end
 
   def print_blocks(%BlockChain{tail: tail} = bc, continue, cache_id)
       when continue === false do
-    # elem(Enum.at(:ets.lookup(:bc_cache, tail), 0), 1) |> Kernel.inspect() |> IO.puts()
   end
 
   def print_blocks(%BlockChain{tail: tail} = bc, continue, cache_id)
@@ -54,7 +43,6 @@ defmodule BlockChain do
 
     print_blocks(
       %BlockChain{tail: b.prevBlockHash},
-      # elem(Enum.at(:ets.lookup(:bc_cache, b.prevBlockHash), 0), 1).prevBlockHash != "Genesis"
       b.prevBlockHash != "Genesis",
       cache_id
     )
@@ -98,7 +86,6 @@ defmodule BlockChain do
       transaction_walker(bci, st, 0, length(bci.block.transactions), unspentTXs, address)
 
     bci_next = BlockChainIterator.next(bci, cache_id)
-    # IO.puts("Unspent Tx outside loop=#{Kernel.inspect(elem(st_unspentTXs, 1))}")
 
     unspent_trans_helper(
       bci_next,
@@ -130,14 +117,6 @@ defmodule BlockChain do
       unspentTXs ++
         if check_referenced_outputs(tx, st, i) === true do
           out_tx_i = Enum.at(tx.out_tx, i)
-
-          # IO.puts(
-          #   "PublicKey=#{address |> Kernel.inspect() |> Base.encode64()}\n PublicKeyHash=#{
-          #     :crypto.hash(:ripemd160, :crypto.hash(:sha256, address))
-          #     |> Kernel.inspect()
-          #     |> Base.encode64()
-          #   }"
-          # )
 
           if OutputTransaction.can_be_unlocked_with(out_tx_i, address) do
             [tx]
@@ -188,14 +167,6 @@ defmodule BlockChain do
   end
 
   def find_utxo_helper(out_tx, utxos, address, i, limit) when i < limit do
-    # IO.puts(
-    #   "PublicKey=#{address |> Kernel.inspect() |> Base.encode64()}\n PublicKeyHash=#{
-    #     :crypto.hash(:ripemd160, :crypto.hash(:sha256, address))
-    #     |> Kernel.inspect()
-    #     |> Base.encode64()
-    #   }"
-    # )
-
     utxos =
       utxos ++
         if OutputTransaction.can_be_unlocked_with(Enum.at(out_tx, i), address) do
@@ -244,14 +215,6 @@ defmodule BlockChain do
       when i < limit and accumulated < amount do
     out = Enum.at(tx.out_tx, i)
 
-    # IO.puts(
-    #   "PublicKey=#{address |> Kernel.inspect() |> Base.encode64()} \nPublicKeyHash=#{
-    #     :crypto.hash(:ripemd160, :crypto.hash(:sha256, address))
-    #     |> Kernel.inspect()
-    #     |> Base.encode64()
-    #   }"
-    # )
-
     accumulated =
       accumulated +
         if OutputTransaction.can_be_unlocked_with(out, address) do
@@ -262,8 +225,6 @@ defmodule BlockChain do
 
     unspentOuts =
       if OutputTransaction.can_be_unlocked_with(out, address) do
-        # IO.puts("\n\n\nUnspentOuts=#{Kernel.inspect(unspentOuts)}\n\n\n")
-
         if Map.get(unspentOuts, Map.get(tx, :ID)) != nil do
           Map.put(unspentOuts, Map.get(tx, :ID), Map.get(unspentOuts, Map.get(tx, :ID)) ++ [i])
         else
@@ -323,7 +284,6 @@ defmodule BlockChain do
 
   def get_balance(bc, address, cache_id) do
     utxos = BlockChain.find_utxo(bc, address, cache_id)
-    # IO.puts("\n\n\nUTXOs=#{Kernel.inspect(utxos)}\n\n\n")
     get_balance_helper(utxos, 0, length(utxos), 0, address)
   end
 
@@ -347,7 +307,6 @@ defmodule BlockChain do
 
   def new_utxo_transaction(bc, from, to, amount, private_key, cache_id) do
     accumulated_unspentOuts = BlockChain.find_spendable_output(bc, from, amount, cache_id)
-    # IO.puts("acc_unspent=#{Kernel.inspect(accumulated_unspentOuts)}")
 
     if elem(accumulated_unspentOuts, 0) >= amount do
       keys = Map.keys(elem(accumulated_unspentOuts, 1))
@@ -355,37 +314,23 @@ defmodule BlockChain do
       inputs =
         valid_outputs_walker(elem(accumulated_unspentOuts, 1), 0, length(keys), keys, from, [])
 
-      # IO.puts(
-      #   "PublicKey=#{to |> Kernel.inspect() |> Base.encode64()}\nPublicKeyHash=#{
-      #     :crypto.hash(:ripemd160, :crypto.hash(:sha256, to))
-      #     |> Kernel.inspect()
-      #     |> Base.encode64()
-      #   }"
-      # )
-
       outputs =
         [
           %OutputTransaction{
             value: amount,
             public_key_hash: :crypto.hash(:ripemd160, :crypto.hash(:sha256, to))
-            # public_key: to
           }
         ] ++
           if elem(accumulated_unspentOuts, 0) >= amount do
-            # IO.puts("Trying to create output transaction")
-
             [
               %OutputTransaction{
                 value: -1 * amount,
                 public_key_hash: :crypto.hash(:ripemd160, :crypto.hash(:sha256, from))
-                # public_key: from
               }
             ]
           else
             []
           end
-
-      # IO.puts("input=#{Kernel.inspect(inputs)} output=#{Kernel.inspect(outputs)}")
 
       signed_tx =
         Transaction.sign(
@@ -397,7 +342,6 @@ defmodule BlockChain do
           private_key
         )
 
-      # IO.puts("SignedTransaction=#{Kernel.inspect(signed_tx)}")
       signed_tx
     else
       IO.puts("ERROR Not enough funds")
@@ -407,13 +351,9 @@ defmodule BlockChain do
 
   def send(bc, from, to, amount, private_key, public_key, cache_id) do
     new_utxo = new_utxo_transaction(bc, from, to, amount, private_key, cache_id)
-    # IO.puts("Send: Trying to print UTXO")
-    # IO.inspect(new_utxo)
 
     bc =
       if new_utxo != nil do
-        # IO.puts("Printing new transaction from=#{from} to=#{to}")
-        # IO.puts("Success")
         BlockChain.add_block(bc, [new_utxo], public_key, cache_id)
       else
         IO.puts("Not Enough Funds")
@@ -425,67 +365,5 @@ defmodule BlockChain do
     bc = send(bc, from, buyer, amount, private_key, public_key, cache_id)
     IO.puts("#{cache_id} Bought #{amount} coins")
     bc
-  end
-
-  def main(args) do
-    # :ets.new(:bc_cache, [:set, :public, :named_table])
-    # wallets = %{}
-    # wallets = Map.put(wallets, "Rachit", Wallet.new_wallet(%Wallet{}))
-    # wallets = Map.put(wallets, "Aditya", Wallet.new_wallet(%Wallet{}))
-    # wallets = Map.put(wallets, "KC", Wallet.new_wallet(%Wallet{}))
-    # wallets = Map.put(wallets, "coinbase", Wallet.new_wallet(%Wallet{}))
-
-    # rachit = Map.get(Map.get(wallets, "Rachit"), :public_key)
-    # aditya = Map.get(Map.get(wallets, "Aditya"), :public_key)
-    # kc = Map.get(Map.get(wallets, "KC"), :public_key)
-    # coinbase = Map.get(Map.get(wallets, "coinbase"), :public_key)
-    # bc = BlockChain.new_block_chain(%BlockChain{}, coinbase)
-
-    # {public_key, private_key} =
-    #   :crypto.generate_key(
-    #     :ecdh,
-    #     :secp256k1
-    #   )
-
-    # # IO.puts(
-    # #   "Aditya PublicKey=#{aditya |> Kernel.inspect() |> Base.encode64()} PublicKeyHash=#{
-    # #     :crypto.hash(:ripemd160, :crypto.hash(:sha256, aditya))
-    # #     |> Kernel.inspect()
-    # #     |> Base.encode64()
-    # #   }"
-    # # )
-
-    # # IO.puts("Rachit=#{rachit |> Base.encode16()} Aditya=#{aditya |> Base.encode16()}")
-    # bc = buy(bc, coinbase, aditya, 7, private_key, public_key)
-    # # IO.puts("\n\n\n")
-    # # print_blocks(bc, true)
-    # # IO.puts("\n\n\n")
-    # bc = buy(bc, coinbase, rachit, 10, private_key, public_key)
-    # bc = buy(bc, coinbase, kc, 12, private_key, public_key)
-    # # print_blocks(bc, true)
-    # IO.puts("coinbase's Balance=#{get_balance(bc, coinbase)}")
-    # IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
-    # IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
-    # IO.puts("KC's Balance=#{get_balance(bc, kc)}")
-    # bc = send(bc, rachit, aditya, 15, private_key, public_key)
-    # IO.puts("coinbase's Balance=#{get_balance(bc, coinbase)}")
-    # IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
-    # IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
-    # IO.puts("KC's Balance=#{get_balance(bc, kc)}")
-    # bc = send(bc, kc, aditya, 6, private_key, public_key)
-    # IO.puts("coinbase's Balance=#{get_balance(bc, coinbase)}")
-    # IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
-    # IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
-    # IO.puts("KC's Balance=#{get_balance(bc, kc)}")
-    # bc = send(bc, aditya, rachit, 2, private_key, public_key)
-    # IO.puts("coinbase's Balance=#{get_balance(bc, coinbase)}")
-    # IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
-    # IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
-    # IO.puts("KC's Balance=#{get_balance(bc, kc)}")
-    # bc = send(bc, aditya, kc, 2, private_key, public_key)
-    # IO.puts("coinbase's Balance=#{get_balance(bc, coinbase)}")
-    # IO.puts("Aditya's Balance=#{get_balance(bc, aditya)}")
-    # IO.puts("Rachit's Balance=#{get_balance(bc, rachit)}")
-    # IO.puts("KC's Balance=#{get_balance(bc, kc)}")
   end
 end
