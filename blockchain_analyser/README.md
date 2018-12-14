@@ -1,12 +1,12 @@
 # BitcoinSim 
 
-## Project 4.1
+## Project 4.2
 
 ### Description
 
-Blockchain, Mining Modules for Bitcoin Simulator
+Blockchain Analyser
 
-## Group Member
+## Group Members
 
 - Rachit Ranjan 
 - Aditya Vashist
@@ -20,9 +20,10 @@ Blockchain, Mining Modules for Bitcoin Simulator
     -  mix archive.install hex phx_new 1.4.0
 
 ## Execution Instructions
-
+  - Navigate to `~/blockchain_analyzer/`
   - Get Dependencies
     - `mix deps.get`
+    - `cd assets && npm install`
   - Startup Phoenix Server
     - mix phx.server
   - Navigate to http://0.0.0.0:4000
@@ -32,3 +33,5 @@ Blockchain, Mining Modules for Bitcoin Simulator
     - Click `Transaction Time`
   - View Peers' Balances
     - Click `Get Balances`
+
+## [Demo Video](https://youtu.be/JvuLIn4GGc4)
