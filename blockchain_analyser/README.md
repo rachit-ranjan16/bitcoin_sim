@@ -2,53 +2,33 @@
 
 ## Project 4.1
 
-### Description 
+### Description
 
-Blockchain, Mining Modules for Bitcoin Simulator 
+Blockchain, Mining Modules for Bitcoin Simulator
 
-## Group Members 
+## Group Member
 
 - Rachit Ranjan 
-- Aditya Vashist 
+- Aditya Vashist
 
-## Prerequisites 
+## Prerequisites
 
   - Elixir 1.7+ Installation  
-
-## Functioning Features 
-
-- Blockchain creation
-  - All blocks are stored in ets cache
-    - Key: Block Hash, Value: Block
-    - Key: `:tail`, Value: Block Hash of last block  
--  Transactions
--  Wallets
--  Mining
+  - Node JS and NPM Installation
+  - Install Phoenix 1.7
+    - mix local.hex
+    -  mix archive.install hex phx_new 1.4.0
 
 ## Execution Instructions
 
-  - Main Function
-    - Straight up execution covering the following flows  
-      - Initialization of Blockchain with Coinbase transaction in ets cache 
-      - Creation of Wallets for two participants with initial Bitcoin
-      - Transactions between the two participants
-        - Addition and Mining of Blocks 
-      - Get Balance after each transaction
-        - Mining for a User  
-    - Execute the following
-      - `mix compile`
-      - `mix run`
-      - `mix escript.build`
-      - `./bitcoin_sim`
-  - Execute `mix test` to execute the following tests 
-  - Unit Tests
-    - Tests Convergence of Calculating Hashes 
-      - `calculating hashes`
-    - Links in the Block Chain from the Tail stored in ets cache
-      -  `Links in Blockchain`
-  - Functional Tests (Cover the entire flow described above separately)
-    - `Aditya buys 7 coins`
-    - `Rachit buys 10 coins`
-    - `Rachit sends Aditya 6 coins` 
-    - `Aditya sends Rachit 2 coins`
-    - `Rachit sends Aditya 3 coins`
+  - Get Dependencies
+    - `mix deps.get`
+  - Startup Phoenix Server
+    - mix phx.server
+  - Navigate to http://0.0.0.0:4000
+  - Initiate Miners, Blockchain and Starter Transactions  
+    - Click `Start Process`
+  - View Transaction Times
+    - Click `Transaction Time`
+  - View Peers' Balances
+    - Click `Get Balances`
