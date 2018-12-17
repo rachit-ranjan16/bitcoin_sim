@@ -6,12 +6,6 @@ defmodule Block do
             hash: nil,
             nonce: nil
 
-  # def set_hash(%Block{timestamp: timestamp, data: data, prevBlockHash: prevBlockHash}) do
-  #   :crypto.hash(:sha256, Kernel.to_string(timestamp) <> ";" <> data <> ";" <> prevBlockHash)
-  #   |> Base.encode16()
-  #   |> String.downcase()
-  # end
-
   def create_block(transactions, prevBlockHash) do
     b = %Block{
       transactions: transactions,
